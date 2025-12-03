@@ -1,0 +1,18 @@
+[package]
+name = "pdf_bench"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+pdf_extract = ["dep:pdf-extract"]
+lopdf = ["dep:lopdf"]
+pdfium = ["dep:pdfium-render"]
+poppler = ["dep:poppler-rs"]
+
+[dependencies]
+# 仅在需要时启用
+pdf-extract = { version = "0.7", optional = true }
+lopdf = { version = "0.27", optional = true }
+pdfium-render = { version = "0.8", optional = true } # 检查 crates.io 最新版
+poppler-rs = { version = "0.25", optional = true }
