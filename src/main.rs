@@ -80,11 +80,11 @@ mod lopdf_backend {
 mod pdfium_backend {
     use pdfium_render::prelude::*;
     pub fn run(path: &str) -> Result<(usize, Option<usize>), String> {
-        // initialize library (uses PDFium from env or bundled)
-        let pdfium = match Pdfium::new(Pdfium::bind_to_system_library() ) {
-            Ok(p) => p,
-            Err(e) => return Err(format!("pdfium init error: {:?}", e)),
-        };
+        // initialize library
+		let pdfium = Pdfium::new(
+			Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path("./lib")).unwrap()
+		);
+
         let doc = pdfium.load_pdf_from_file(path, None)
             .map_err(|e| format!("pdfium load error: {:?}", e))?;
         let page_count = doc.pages().len();
@@ -92,12 +92,11 @@ mod pdfium_backend {
         for i in 0..page_count {
             let page = doc.pages().get(i).unwrap();
             // pdfium-render supports page.text() to get text
-            match page.text() {
-                Ok(text) => all.push_str(&text),
-                Err(e) => return Err(format!("pdfium page text error: {:?}", e)),
-            }
+			let text = page.text().unwrap().all(); // https://github.com/ajrcarey/pdfium-render/blob/master/examples/text_extract.rs
+            all.push_str(&text);
         }
-        Ok((all.as_bytes().len(), Some(page_count)))
+		println!("pdfium: {}", all);
+        Ok((all.as_bytes().len(), Some(page_count.into())))
     }
 }
 
